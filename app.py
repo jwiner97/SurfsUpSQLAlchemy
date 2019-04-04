@@ -91,30 +91,26 @@ group by m.station''').fetchall()
     return jsonify(stations)
 
 @app.route("/api/v1.0/tobs")
-def stations():
-    """Return a JSON list of Temperature Observations (tobs) for the previous year.."""
+def tobs():
+    """Return a JSON list of Temperature Observations (tobs) for the previous year for most active station"""
     # Query staions
-    results = engine.execute('''select m.station,s.name,s.latitude,s.longitude,s.elevation, count(m.station) as count
+    results = engine.execute('''select date(m.date), m.tobs
 from measurement m
 inner join station s on s.station = m.station
-group by m.station''').fetchall()
+where 1=1 and
+    m.date >= date('2016-08-23') and
+    m.station = "USC00519281"
+group by m.tobs
+order by m.date''').fetchall()
 
     # Convert the query results to a Dictionary
-    stations = []
-    for station,name,latitude,longitude,elevation,count in results:
-        station_dict = {}
-        station_dict["station"] = station
-        station_dict["name"] = name
-        station_dict["latitude"] = latitude
-        station_dict["longitude"] = longitude
-        station_dict["elevation"] = elevation
-        station_dict["count"] = count
-        stations.append(station_dict)
-
-    return jsonify(stations)
-
-
-
+    temps = []
+    for date, tobs in results:
+        tobs_dict = {}
+        tobs_dict["date"] = date
+        tobs_dict["tobs"] = tobs
+        temps.append(tobs_dict)
+    return jsonify(temps)
 
 
 if __name__ == '__main__':
