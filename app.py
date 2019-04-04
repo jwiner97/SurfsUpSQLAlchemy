@@ -100,7 +100,6 @@ inner join station s on s.station = m.station
 where 1=1 and
     m.date >= date('2016-08-23') and
     m.station = "USC00519281"
-group by m.tobs
 order by m.date''').fetchall()
 
     # Convert the query results to a Dictionary
